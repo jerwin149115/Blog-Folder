@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Personal Blog</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f9fc;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        header nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            margin-left: 20px;
+            transition: color 0.3s;
+        }
+
+        header nav a:hover {
+            color: #1c1e21;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-block;
+            transition: background-color 0.3s;
+            margin-bottom: 30px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #posts {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        article {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            transition: box-shadow 0.3s;
+        }
+
+        article:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        article h2 {
+            font-size: 22px;
+            color: #2d2f36;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        article p:first-of-type {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 12px;
+        }
+
+        article p:last-of-type {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        article a {
+            font-size: 14px;
+            color: #3b5998;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        article a:hover {
+            color: #1c1e21;
+            text-decoration: underline;
+        }
+
+        #addPostModal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding-top: 60px;
+            transition: opacity 0.3s;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 25px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 600px;
+            transition: transform 0.3s;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+    
+        .form-group label {
+            font-size: 16px;
+            color: #333;
+        }
+    
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-top: 5px;
+        }
+    
+        .form-group textarea {
+            resize: vertical;
+            height: 150px;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            #posts {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #posts {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 22px;
+            }
+
+            button {
+                font-size: 16px;
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Personal Blog Dashboard</h1>
+        <nav>
+            <a href="{% url 'index' %}">Home</a>
+        </nav>
+    </header>
+    <main>
+        <button id="openModalBtn">Add Post</button>
+        <div id="addPostModal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Add a New Post</h2>
+                <form id="postForm" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="title">Title:</label>
+                        <input type="text" id="title" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="content">Content:</label>
+                        <textarea id="content" name="content" required></textarea>
+                    </div>
+                    <button type="submit">Save Post</button>
+                </form>
+            </div>
+        </div>
+
+        <section id="posts">
+            {% for post in posts %}
+                <article>
+                    <p>{{ post.created_at|date:"F j, Y" }}</p>
+                    <h2>{{ post.title }}</h2>
+                    <p>{{ post.content|slice:":100" }}...</p>
+                    <a href="{% url 'post_detail' post.id %}">Read More</a>
+                </article>
+            {% endfor %}
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const postsContainer = document.getElementById("posts");
+
+            fetch("http://127.0.0.1:8000/api/posts/")
+            .then(response => response.json())
+            .then(data => {
+                if (Array.isArray(data.posts)) {
+                    data.posts.forEach(post => {
+                        if (post.created_at && post.title && post.content) {
+                            const createdAt = new Date(post.created_at).toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                            });
+
+                            const postElement = document.createElement("article");
+                            postElement.innerHTML = `
+                                <p>${createdAt}</p>
+                                <h2>${post.title}</h2>
+                                <p>${post.content.substring(0, 100)}...</p>
+                                <a href="post-detail/${post.id}">Read More</a>
+                            `;
+                            postsContainer.appendChild(postElement);
+                        } else {
+                            console.warn("Post data is incomplete", post);
+                        }
+                    });
+                } else {
+                    console.error("Received data.posts is not an array:", data.posts);
+                }
+            })
+            .catch(error => console.error("Error fetching posts:", error));
+
+
+            const modal = document.getElementById("addPostModal");
+            const openModalBtn = document.getElementById("openModalBtn");
+            const closeModalBtn = document.querySelector(".close");
+            const postForm = document.getElementById("postForm");
+
+            openModalBtn.addEventListener("click", () => {
+                modal.style.display = "block";
+                modal.style.opacity = 1;
+                modal.querySelector(".modal-content").style.transform = "translateY(0)";
+            });
+
+            closeModalBtn.addEventListener("click", () => {
+                modal.style.display = "none";
+                modal.style.opacity = 0;
+                modal.querySelector(".modal-content").style.transform = "translateY(-50px)";
+            });
+
+            window.addEventListener("click", (event) => {
+                if (event.target === modal) {
+                    modal.style.display = "none";
+                    modal.style.opacity = 0;
+                    modal.querySelector(".modal-content").style.transform = "translateY(-50px)";
+                }
+            });
+            const accessToken = localStorage.getItem("access_token");
+            postForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                const title = document.getElementById("title").value;
+                const content = document.getElementById("content").value;
+                try {
+                    const response = await fetch("http://127.0.0.1:8000/api/posts/create", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${localStorage.getItem("access_token")}`
+                        },
+                        body: JSON.stringify({ title, content }),
+                    });
+            
+                    if (response.ok) {
+                        const newPost = await response.json();
+                        console.log(newPost); 
+                        alert("Post added successfully!");
+                        addPostToDOM(newPost);
+                        modal.style.display = "none";
+                        window.location.reload()
+                    } else {
+                        const error = await response.json();
+                        alert("Failed to add post: " + (error.detail || "Please try again."));
+                    }
+                } catch (error) {
+                    console.error("Error submitting post:", error);
+                    alert("An error occurred. Please try again.");
+                }
+            });            
+
+            function addPostToDOM(post) {
+                const postsContainer = document.getElementById("posts-container");
+            
+                if (!postsContainer) {
+                    console.error("Posts container not found!");
+                    return;
+                }
+            
+                const createdAt = new Date(post.created_at).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                });
+            
+                const postElement = document.createElement("article");
+
+                const contentPreview = post.content ? post.content.substring(0, 100) + "..." : "No content available.";
+            
+                postElement.innerHTML = `
+                    <p>${createdAt}</p>
+                    <h2>${post.title}</h2>
+                    <p>${contentPreview}</p>
+                    <a href="post-detail/${post.id}">Read More</a>
+                `;
+                
+                postsContainer.appendChild(postElement);
+            }                       
+        });
+
+
+    </script>
+</body>
+</html>

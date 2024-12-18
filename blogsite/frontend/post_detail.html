@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f9fc;
+            color: #333;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        main {
+            max-width: 800px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .post-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .post-content {
+            font-size: 16px;
+            color: #555;
+        }
+        .actions a {
+            color: #4CAF50;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+        .comments {
+            margin-top: 30px;
+        }
+        .comment {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .comment-author {
+            font-weight: bold;
+            color: #333;
+        }
+        .comment-content {
+            margin-top: 5px;
+            color: #555;
+        }
+        form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            resize: vertical;
+        }
+        form button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Post Details</h1>
+    </header>
+    <main>
+        <h2 class="post-title">{{ post.title }}</h2>
+        <p class="post-content">{{ post.content }}</p>
+        <div class="actions">
+            <a href="{% url 'edit_post' post.id %}">Edit</a>
+            <a href="{% url 'delete_post' post.id %}" onclick="return confirm('Are you sure you want to delete this post?');">Delete</a>
+        </div>
+        <hr>
+        <div class="comments">
+            <h3>Comments ({{ comments.count }})</h3>
+            {% for comment in comments %}
+                <div class="comment">
+                    <p class="comment-author">{{ comment.author.username }}:</p>
+                    <p class="comment-content">{{ comment.content }}</p>
+                </div>
+            {% endfor %}
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            <textarea name="content" rows="4" placeholder="Write a comment..." required>{{ form.content.value }}</textarea>
+            <button type="submit">Add Comment</button>
+        </form>
+    </main>
+</body>
+</html>
