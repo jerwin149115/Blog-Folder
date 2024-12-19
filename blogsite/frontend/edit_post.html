@@ -44,17 +44,31 @@
             width: 100%;
         }
         button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
             padding: 10px 15px;
             font-size: 14px;
             border-radius: 6px;
             cursor: pointer;
-            align-self: flex-start;
+            margin-right: 10px;
         }
-        button:hover {
+        button.save {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+        button.save:hover {
             background-color: #45a049;
+        }
+        button.close {
+            background-color: #f44336;
+            color: white;
+            border: none;
+        }
+        button.close:hover {
+            background-color: #e53935;
+        }
+        .buttons {
+            display: flex;
+            justify-content: flex-start;
         }
     </style>
 </head>
@@ -71,8 +85,12 @@
             <label for="content">Content</label>
             <textarea id="content" name="content" rows="6" required>{{ post.content }}</textarea>
 
-            <button type="submit">Save Changes</button>
+            <div class="buttons">
+                <button type="submit" class="save">Save Changes</button>
+                <button type="button" class="close" onclick="window.location.href='/dashboard/'">Back</button>
+            </div>
         </form>
     </main>
+
 </body>
 </html>

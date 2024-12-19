@@ -76,6 +76,16 @@
             cursor: pointer;
             margin-top: 10px;
         }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -104,6 +114,7 @@
             <textarea name="content" rows="4" placeholder="Write a comment..." required>{{ form.content.value }}</textarea>
             <button type="submit">Add Comment</button>
         </form>
+        <button onclick="window.location.href='/dashboard/'">Back</button>
     </main>
 </body>
 </html>

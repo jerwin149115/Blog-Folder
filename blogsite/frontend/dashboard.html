@@ -116,6 +116,10 @@
             text-decoration: underline;
         }
 
+        a{
+            cursor: pointer;
+        }
+
         #addPostModal {
             display: none;
             position: fixed;
@@ -206,6 +210,7 @@
         <h1>Personal Blog Dashboard</h1>
         <nav>
             <a href="{% url 'index' %}">Home</a>
+            <a id="logout">Logout</a>
         </nav>
     </header>
     <main>
@@ -365,6 +370,32 @@
             }                       
         });
 
+        const logout = document.getElementById('logout');
+
+        logout.addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/logout/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem("access_token")}`
+                    }
+                });
+        
+                if (response.ok) {
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('refresh_token');
+                    alert('Logout successful!');
+                    window.location.href = '/';
+                } else {
+                    const error = await response.json();
+                    alert('Failed to logout: ' + (error.detail || 'Please try again.'));
+                }
+            } catch (error) {
+                console.error('Error during logout:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
 
     </script>
 </body>

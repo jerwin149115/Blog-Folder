@@ -10,12 +10,17 @@ from django.shortcuts import render
 from django.views.generic import ListView, DetailView
 from django.http import JsonResponse
 from rest_framework.views import APIView
-from .models import Post
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Post, Comment
+from .models import Post
 from .forms import CommentForm
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from django.http import JsonResponse
+from .models import Post
 
 
 def index(request):
@@ -61,16 +66,19 @@ def login_user(request):
         return JsonResponse({"error": "POST method required for login"}, status=405)
     return JsonResponse({"error": "Method not allowed"}, status=405)
 
-
 @csrf_exempt
 def logout_user(request):
     if request.method == 'POST':
-        logout(request)
-        return JsonResponse({'message': 'Logout successful'})
+        logout(request) 
+        return JsonResponse({'message': 'Logout successful'}, status=200)
+    return JsonResponse({'error': 'POST method required for logout'}, status=405)
 
     
 def dashboard(request):
+    if not request.user.is_authenticated:
+        return redirect('/') 
     return render(request, 'dashboard.html')
+
 
 class PostListView(ListView):
     model = Post
@@ -83,10 +91,19 @@ class PostListView(ListView):
             'posts': list(context['posts'].values())
         })
 
+
 class PostCreateView(APIView):
     permission_classes = [IsAuthenticated] 
 
     def post(self, request, *args, **kwargs):
+        try:
+          
+            auth = JWTAuthentication()
+            user, _ = auth.authenticate(request) 
+            request.user = user  
+        except AuthenticationFailed:
+            return redirect('/')
+
         title = request.data.get('title')
         content = request.data.get('content')
         post = Post.objects.create(
@@ -95,6 +112,7 @@ class PostCreateView(APIView):
             author=request.user  
         )
         return JsonResponse({'message': 'Post created successfully'}, status=201)
+
         
 class PostDetailView(DetailView):
     model = Post
